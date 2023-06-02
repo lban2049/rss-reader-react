@@ -25,7 +25,7 @@ service.interceptors.response.use(
     } else {
       console.log('err', res)
       alert(res.msg)
-      return Promise.reject(res)
+      return res
     }
   }
 )

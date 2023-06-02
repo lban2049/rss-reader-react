@@ -1,4 +1,4 @@
-const BaseUrl = 'http://127.0.0.1:8787/';
+const BaseUrl = 'https://rss-reader-backend.lban.workers.dev/';
 
 export {
   BaseUrl

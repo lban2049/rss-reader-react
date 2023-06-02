@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { GearIcon, PaperPlaneIcon, EnvelopeClosedIcon, StarIcon, PlusIcon } from '@radix-ui/react-icons'
 import AddSubscribe from './leftComponents/AddSubscribe'
+import SubscribeList from './leftComponents/SubscribeList'
 
 export default function LeftArea() {
 
@@ -50,6 +51,11 @@ export default function LeftArea() {
         }
       </div>
       <div className="flex-1 overflow-y-auto">
+        {
+          active.id === 'subscribe' && (
+            <SubscribeList />
+          )
+        }
       </div>
       <div className="h-20 border-t border-solid border-ws-700 rounded-2xl flex justify-around">
         {
