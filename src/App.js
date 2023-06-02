@@ -1,23 +1,15 @@
-import logo from './logo.svg';
 import './App.css';
+import LeftArea from './view/LeftArea';
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="App bg-ws-950 flex flex-row">
+      <div className='left-block h-full border border-solid border-ws-700'>
+        <LeftArea />
+      </div>
+      <div className="flex-1">
+
+      </div>
     </div>
   );
 }
