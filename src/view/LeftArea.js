@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { GearIcon, PaperPlaneIcon, EnvelopeClosedIcon, StarIcon, PlusIcon } from '@radix-ui/react-icons'
 import AddSubscribe from './leftComponents/AddSubscribe'
+import AllItemList from './leftComponents/AllItemList'
 import SubscribeList from './leftComponents/SubscribeList'
 
 export default function LeftArea() {
@@ -54,6 +55,11 @@ export default function LeftArea() {
         {
           active.id === 'subscribe' && (
             <SubscribeList />
+          )
+        }
+        {
+          active.id === 'all' && (
+            <AllItemList />
           )
         }
       </div>
