@@ -46,3 +46,8 @@
     transform: rotate(360deg);
   }
 }
+
+.rsshub-quote {
+  font-style: italic;
+  margin-left: 1.25rem;
+}

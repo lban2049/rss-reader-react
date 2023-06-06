@@ -1,8 +1,8 @@
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import Http from '../../request';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
 
-export default function AllItemList() {
+export default forwardRef(({ onShow }, ref) => {
   const [data, setData] = useState([]);
   const [activeData, setActiveData] = useState({});
 
@@ -21,8 +21,12 @@ export default function AllItemList() {
         console.log('newData', newData);
 
         if (newData.length > 0) {
-          lastDate = newData[newData.length - 1].pubDate;
           setData([...data, ...newData]);
+          if (lastDate === undefined) {
+            handleClick(newData[0]);
+          }
+
+          lastDate = newData[newData.length - 1].pubDate;
         }
       }
     });
@@ -32,19 +36,48 @@ export default function AllItemList() {
     getUnReadList();
   }, []);
 
+  // 点击选中内容，调用父组件方法，显示在右侧
+  const handleClick = (item) => {
+    setActiveData(item);
+
+    // 调用Props件方法，显示在右侧
+    if (onShow && typeof onShow === 'function') {
+      onShow(item);
+    }
+  }
+
+  useImperativeHandle(ref, () => ({
+
+    // 内容已读，切换到下一条
+    handleItemRead() {
+      // 获取activeData的index，切换到下一条
+      const index = data.findIndex(item => item.id == activeData.id);
+      if (index > -1) {
+        const nextIndex = index + 1;
+        if (nextIndex < data.length) {
+          handleClick(data[nextIndex]);
+        }
+      }
+    }
+  }));
+
   return (
     <ScrollArea.Root className="h-full">
       <ScrollArea.Viewport className="h-full">
         {
           data && data.map((item, index) => {
             return (
-              <div key={index} className="flex p-5 items-start border-b border-solid border-ws-700 w-400 overflow-hidden cursor-pointer">
+              <div
+                key={index}
+                onClick={() => handleClick(item)}
+                className={`${item.id == activeData.id ? 'bg-ws-800' : ''} flex p-5 items-start border-b border-solid border-ws-700 w-400 overflow-hidden cursor-pointer`}
+              >
                 <div className="h-24 w-24 shrink-0 rounded-lg overflow-hidden">
                   <img src={item.imageUrl} className="w-full h-full" />
                 </div>
                 <div className="flex-1 ml-5 text-left overflow-hidden">
                   <div className="text-ws-100 text-lg line-clamp-2">{item.title}</div>
-                  <div className="mt-2 text-xs text-ws-200 line-clamp-3">{item.content}</div>
+                  <div className="mt-2 text-xs text-ws-200 line-clamp-3" dangerouslySetInnerHTML={{ __html: item.content }}></div>
                 </div>
               </div>
             )
@@ -56,4 +89,4 @@ export default function AllItemList() {
       </ScrollArea.Scrollbar>
     </ScrollArea.Root>
   )
-}
+})

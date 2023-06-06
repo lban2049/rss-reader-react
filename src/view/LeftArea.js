@@ -1,10 +1,11 @@
-import { useState } from 'react'
+import { useState, useRef, forwardRef, useImperativeHandle } from 'react'
 import { GearIcon, PaperPlaneIcon, EnvelopeClosedIcon, StarIcon, PlusIcon } from '@radix-ui/react-icons'
 import AddSubscribe from './leftComponents/AddSubscribe'
 import AllItemList from './leftComponents/AllItemList'
 import SubscribeList from './leftComponents/SubscribeList'
 
-export default function LeftArea() {
+export default forwardRef(({ onItemShow }, ref) => {
+  const allItemListRef = useRef(null);
 
   const tabs = [
     {
@@ -37,6 +38,22 @@ export default function LeftArea() {
     setActive(tab)
   }
 
+  // 处理内容点击事件，调用onItemShow方法，显示在右侧
+  const handleItemClick = (item) => {
+    if (onItemShow && typeof onItemShow === 'function') {
+      onItemShow(item)
+    }
+  }
+
+  useImperativeHandle(ref, () => ({
+    // 内容已读，切换到下一条
+    handleItemRead() {
+      if (allItemListRef && allItemListRef.current) {
+        allItemListRef.current.handleItemRead();
+      }
+    }
+  }));
+
   return (
     <div className="h-full flex flex-col">
       <div className="p-5 flex items-center border-b border-solid border-ws-700">
@@ -59,7 +76,7 @@ export default function LeftArea() {
         }
         {
           active.id === 'all' && (
-            <AllItemList />
+            <AllItemList onShow={handleItemClick} ref={allItemListRef} />
           )
         }
       </div>
@@ -68,11 +85,10 @@ export default function LeftArea() {
           tabs.map((tab) => {
             const Icon = tab.icon
             return (
-              <div className={`flex flex-col items-center justify-center h-full ${
-                active.id === tab.id ? 'text-ws-300' : 'text-ws-100'
-              } text-base cursor-pointer`}
-              onClick={() => handleTabChange(tab)}
-              key={tab.id}>
+              <div className={`flex flex-col items-center justify-center h-full ${active.id === tab.id ? 'text-ws-300' : 'text-ws-100'
+                } text-base cursor-pointer`}
+                onClick={() => handleTabChange(tab)}
+                key={tab.id}>
                 <Icon className="w-7 h-7" />
                 <div className="mt-1">
                   {tab.title}
@@ -85,4 +101,4 @@ export default function LeftArea() {
 
     </div>
   )
-}
+})
