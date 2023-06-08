@@ -1,21 +1,29 @@
 import * as ScrollArea from '@radix-ui/react-scroll-area';
 import Http from '../../request';
 import { useState, useEffect, forwardRef, useImperativeHandle } from 'react';
+import { DateTime } from 'luxon';
 
 export default forwardRef(({ onShow }, ref) => {
   const [data, setData] = useState([]);
   const [activeData, setActiveData] = useState({});
-
-  let lastDate = undefined;
+  const [lastDate, setLastDate] = useState(undefined);
+  const [isLoading, setIsLoading] = useState(false);
 
   // 获取未读列表
   const getUnReadList = () => {
+    if (isLoading) {
+      return;
+    }
+
+    setIsLoading(true);
+
     Http.get('/api/subscriptions/items', {
       params: {
         isRead: 0,
-        lastDate,
+        lastDate: lastDate,
       }
     }).then(res => {
+      setIsLoading(false);
       if (res.success) {
         const newData = res.data;
         console.log('newData', newData);
@@ -26,9 +34,13 @@ export default forwardRef(({ onShow }, ref) => {
             handleClick(newData[0]);
           }
 
-          lastDate = newData[newData.length - 1].pubDate;
+          const newLastDate = newData[newData.length - 1].pubDate;
+          setLastDate(newLastDate);
         }
       }
+    }).catch(err => {
+      setIsLoading(false);
+      console.log(err);
     });
   }
 
@@ -61,9 +73,17 @@ export default forwardRef(({ onShow }, ref) => {
     }
   }));
 
+  // 处理滚动事件，靠近底部时，加载更多
+  const handleScroll = (e) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.target;
+    if (scrollTop + clientHeight >= scrollHeight - 100) {
+      getUnReadList();
+    }
+  }
+
   return (
     <ScrollArea.Root className="h-full">
-      <ScrollArea.Viewport className="h-full">
+      <ScrollArea.Viewport className="h-full" onScroll={handleScroll}>
         {
           data && data.map((item, index) => {
             return (
@@ -77,6 +97,9 @@ export default forwardRef(({ onShow }, ref) => {
                 </div>
                 <div className="flex-1 ml-5 text-left overflow-hidden">
                   <div className="text-ws-100 text-lg line-clamp-2">{item.title}</div>
+                  <div className="text-ws-300 text-sm">
+                    {`${DateTime.fromISO(item.pubDate).toFormat('yyyy-MM-dd HH:mm')} - ${item.author}`}
+                  </div>
                   <div className="mt-2 text-xs text-ws-200 line-clamp-3" dangerouslySetInnerHTML={{ __html: item.content }}></div>
                 </div>
               </div>
